@@ -1,5 +1,7 @@
 # from ezblock import Servo,PWM,fileDB,Pin,ADC
 import time
+import logging
+from logdecorator import log_on_start, log_on_end, log_on_error
 
 import platform
 if platform.machine() == 'armv7l':
@@ -16,6 +18,10 @@ else:
     from sim_adc import ADC
     from sim_filedb import fileDB
 
+logging_format = "%(asctime)s: %(message)s"
+logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%HL%ML%S")
+
+logging.getLogger().setLevel(logging.DEBUG)
 
 
 class Picarx(object):
@@ -56,8 +62,7 @@ class Picarx(object):
             pin.period(self.PERIOD)
             pin.prescaler(self.PRESCALER)
 
-
-
+    @log_on_end(logging.DEBUG, "Motor speed set: {motor} {speed}")
     def set_motor_speed(self,motor,speed):
         # global cali_speed_value,cali_dir_value
         motor -= 1
@@ -103,6 +108,7 @@ class Picarx(object):
         self.config_flie.set("picarx_dir_servo", "%s"%value)
         self.dir_servo_pin.angle(value)
 
+    @log_on_end(logging.DEBUG, "Steering angle set: {value}")
     def set_dir_servo_angle(self,value):
         # global dir_cal_value
         self.dir_current_angle = value
@@ -126,12 +132,14 @@ class Picarx(object):
         print("picarx_cam2_servo:",self.cam_cal_value_2)
         self.camera_servo_pin2.angle(value)
 
+    @log_on_end(logging.DEBUG, "Camera angle1 set: {value}")
     def set_camera_servo1_angle(self,value):
         # global cam_cal_value_1
         self.camera_servo_pin1.angle(-1*(value + -1*self.cam_cal_value_1))
         # print("self.cam_cal_value_1:",self.cam_cal_value_1)
         print((value + self.cam_cal_value_1))
 
+    @log_on_end(logging.DEBUG, "Camera angle2 set: {value}")
     def set_camera_servo2_angle(self,value):
         # global cam_cal_value_2
         self.camera_servo_pin2.angle(-1*(value + -1*self.cam_cal_value_2))
@@ -145,10 +153,12 @@ class Picarx(object):
         adc_value_list.append(self.S2.read())
         return adc_value_list
 
+    @log_on_start(logging.DEBUG, "Setting motor power to {speed}...")
     def set_power(self,speed):
         self.set_motor_speed(1, speed)
         self.set_motor_speed(2, speed) 
 
+    @log_on_start(logging.DEBUG, "Backward {speed}...")
     def backward(self,speed):
         current_angle = self.dir_current_angle
         if current_angle != 0:
@@ -168,6 +178,7 @@ class Picarx(object):
             self.set_motor_speed(1, -1*speed)
             self.set_motor_speed(2, speed)  
 
+    @log_on_start(logging.DEBUG, "Forward {speed}...")
     def forward(self,speed):
         current_angle = self.dir_current_angle
         if current_angle != 0:
@@ -187,11 +198,12 @@ class Picarx(object):
             self.set_motor_speed(1, speed)
             self.set_motor_speed(2, -1*speed)                  
 
+    @log_on_start(logging.DEBUG, "Stopping...")
     def stop(self):
         self.set_motor_speed(1, 0)
         self.set_motor_speed(2, 0)
 
-
+    @log_on_end(logging.DEBUG, "Distance measured: {result!r}cm"
     def Get_distance(self):
         timeout=0.01
         trig = Pin('D8')
