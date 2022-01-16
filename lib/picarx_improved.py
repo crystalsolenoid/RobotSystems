@@ -2,6 +2,7 @@
 import time
 import logging
 from logdecorator import log_on_start, log_on_end, log_on_error
+import atexit
 
 import platform
 if platform.machine() == 'armv7l':
@@ -23,6 +24,15 @@ logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%HL%ML%S
 
 logging.getLogger().setLevel(logging.DEBUG)
 
+@log_on_end(logging.DEBUG, "Motors stopped on exit.")
+def emergency_stop():
+    left_rear_pwm_pin = PWM("P13")
+    right_rear_pwm_pin = PWM("P12")
+    motor_speed_pins = [left_rear_pwm_pin, right_rear_pwm_pin]
+    motor_speed_pins[0].pulse_width_percent(0)
+    motor_speed_pins[1].pulse_width_percent(0)
+
+atexit.register(emergency_stop)
 
 class Picarx(object):
     PERIOD = 4095
@@ -203,7 +213,7 @@ class Picarx(object):
         self.set_motor_speed(1, 0)
         self.set_motor_speed(2, 0)
 
-    @log_on_end(logging.DEBUG, "Distance measured: {result!r}cm"
+    @log_on_end(logging.DEBUG, "Distance measured: {result!r}cm")
     def Get_distance(self):
         timeout=0.01
         trig = Pin('D8')
@@ -229,7 +239,6 @@ class Picarx(object):
         cm = round(during * 340 / 2 * 100, 2)
         #print(cm)
         return cm
-
 
 if __name__ == "__main__":
     px = Picarx()
