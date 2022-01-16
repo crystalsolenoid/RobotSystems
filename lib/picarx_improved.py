@@ -24,22 +24,14 @@ logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%HL%ML%S
 
 logging.getLogger().setLevel(logging.DEBUG)
 
-@log_on_end(logging.DEBUG, "Motors stopped on exit.")
-def emergency_stop():
-    left_rear_pwm_pin = PWM("P13")
-    right_rear_pwm_pin = PWM("P12")
-    motor_speed_pins = [left_rear_pwm_pin, right_rear_pwm_pin]
-    motor_speed_pins[0].pulse_width_percent(0)
-    motor_speed_pins[1].pulse_width_percent(0)
-
-atexit.register(emergency_stop)
-
 class Picarx(object):
     PERIOD = 4095
     PRESCALER = 10
     TIMEOUT = 0.02
 
     def __init__(self):
+        atexit.register(self.cleanup)
+
         self.dir_servo_pin = Servo(PWM('P2'))
         self.camera_servo_pin1 = Servo(PWM('P0'))
         self.camera_servo_pin2 = Servo(PWM('P1'))
@@ -241,6 +233,10 @@ class Picarx(object):
         cm = round(during * 340 / 2 * 100, 2)
         #print(cm)
         return cm
+
+    @log_on_end(logging.DEBUG, "Motors stopped on exit.")
+    def cleanup(self):
+        self.stop()
 
 if __name__ == "__main__":
     px = Picarx()
