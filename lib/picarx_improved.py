@@ -11,6 +11,7 @@ if platform.machine() == 'armv7l':
     from pin import Pin
     from adc import ADC
     from filedb import fileDB
+    config_location = '/home/qntn/.picar_config'
 else:
     print('''This computer does not seem to have an arm processor and therefore is not a PiCar-X. Shadowing hardware calls with substitute functions.''')
     from sim_servo import Servo
@@ -18,6 +19,7 @@ else:
     from sim_pin import Pin
     from sim_adc import ADC
     from sim_filedb import fileDB
+    config_location = '/home/qkonyn/.picar_config'
 
 logging_format = "%(asctime)s: %(message)s"
 logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%HL%ML%S")
@@ -35,7 +37,7 @@ class Picarx(object):
         self.dir_servo_pin = Servo(PWM('P2'))
         self.camera_servo_pin1 = Servo(PWM('P0'))
         self.camera_servo_pin2 = Servo(PWM('P1'))
-        self.config_flie = fileDB('/home/qkonyn/.picar_config')
+        self.config_flie = fileDB(config_location)
         self.dir_cal_value = int(self.config_flie.get("picarx_dir_servo", default_value=0))
         self.cam_cal_value_1 = int(self.config_flie.get("picarx_cam1_servo", default_value=0))
         self.cam_cal_value_2 = int(self.config_flie.get("picarx_cam2_servo", default_value=0))
@@ -77,7 +79,6 @@ class Picarx(object):
 #            speed = int(speed /2 ) + 50
             pass
         speed = speed - self.cali_speed_value[motor]
-        print("actual speed",speed)
         if direction < 0:
             self.motor_direction_pins[motor].high()
             self.motor_speed_pins[motor].pulse_width_percent(speed)
@@ -231,8 +232,24 @@ class Picarx(object):
                 return -2
         during = pulse_end - pulse_start
         cm = round(during * 340 / 2 * 100, 2)
-        #print(cm)
         return cm
+
+    def drive_distance(self, dist, angle, speed=50):
+        # distances calibrated for default speed of 50
+        self.set_dir_servo_angle(angle)
+        if dist >= 0:
+            self.forward(speed)
+        else:
+            self.backward(speed)
+        duration = 1 # TODO calculate based on distance and speed
+        time.sleep(duration) # seconds
+        self.stop()
+
+    def parallel_park(self, side):
+        pass
+
+    def k_turn(self, side):
+        pass
 
     @log_on_end(logging.DEBUG, "Motors stopped on exit.")
     def cleanup(self):
