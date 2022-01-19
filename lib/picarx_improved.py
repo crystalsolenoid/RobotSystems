@@ -241,7 +241,7 @@ class Picarx(object):
             self.forward(speed)
         else:
             self.backward(speed)
-        duration = dist # TODO calculate based on distance and speed
+        duration = abs(dist) # TODO calculate based on distance and speed
         time.sleep(duration) # seconds
         self.stop()
 
