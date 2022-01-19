@@ -241,19 +241,28 @@ class Picarx(object):
             self.forward(speed)
         else:
             self.backward(speed)
-        duration = 1 # TODO calculate based on distance and speed
+        duration = dist # TODO calculate based on distance and speed
         time.sleep(duration) # seconds
         self.stop()
 
     def parallel_park(self, side):
-        pass
+        # TODO implement side option (left/right)
+        # TODO calibrate distances
+        self.drive_distance(-1, 30) # turn right, go bw
+        self.drive_distance(-1, 0) # straighten, go bw
+        self.drive_distance(-1, -30) # turn left, go bw
 
     def k_turn(self, side):
-        pass
+        # TODO implement side option (left/right)
+        # TODO calibrate distances
+        self.drive_distance(1, -30) # turn left, go fw
+        self.drive_distance(-1, 30) # turn right, go bw
+        self.drive_distance(1, -30) # turn left, go fw
 
     @log_on_end(logging.DEBUG, "Motors stopped on exit.")
     def cleanup(self):
         self.stop()
+
 
 if __name__ == "__main__":
     px = Picarx()
