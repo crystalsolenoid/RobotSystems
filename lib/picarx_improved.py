@@ -113,15 +113,21 @@ class Picarx(object):
         self.config_flie.set("picarx_dir_servo", "%s"%value)
         self.dir_servo_pin.angle(value)
 
-    @log_on_end(logging.DEBUG, "Steering angle set: {value}")
+    @log_on_end(logging.DEBUG, "Steering angle set: {result!r}")
     def set_dir_servo_angle(self,value):
+        # don't turn so far that the wheels run into the robot:
+        if abs(value) > 30:
+            # normalize to 30 to preserve sign
+            value = 30 * value / abs(value)
+            logging.debug("dir servo angle was set above 30. normalized to prevent injury.")
         # global dir_cal_value
         self.dir_current_angle = value
         angle_value  = value + self.dir_cal_value
-        print("angle_value:",angle_value)
+        # print("angle_value:",angle_value)
         # print("set_dir_servo_angle_1:",angle_value)
         # print("set_dir_servo_angle_2:",dir_cal_value)
         self.dir_servo_pin.angle(angle_value)
+        return value # for logging
 
     def camera_servo1_angle_calibration(self,value):
         # global cam_cal_value_1
