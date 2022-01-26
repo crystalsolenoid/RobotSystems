@@ -1,0 +1,50 @@
+import logging
+from logdecorator import log_on_start, log_on_end, log_on_error
+import atexit
+
+import platform
+if platform.machine() == 'armv7l':
+    from pin import Pin
+    from adc import ADC
+    from filedb import fileDB
+    config_location = '/home/qntn/.picar_config'
+else:
+    print('''This computer does not seem to have an arm processor and therefore is not a PiCar-X. Shadowi
+ng hardware calls with substitute functions.''')
+    from sim_pin import Pin
+    from sim_adc import ADC
+    from sim_filedb import fileDB
+    config_location = '/home/qkonyn/.picar_config'
+
+logging_format = "%(asctime)s: %(message)s"
+logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%HL%ML%S")
+
+logging.getLogger().setLevel(logging.DEBUG)
+
+class Interpretx():
+    def __init__(self, sensitivity=1, polarity=1):
+        self.sens = sensitivity
+        self.pol = polarity
+    
+    def process(self, sensors):
+        s0, s1, s2 = sensors
+        # find gradient
+        # and if polarity is negative, invert image
+        # scale by sensitivity
+        d1 = (s1 - s0) * self.pol * self.sens
+        d2 = (s2 - s1) * self.pol * self.sens
+        # determine if there is an edge
+        if abs(d1) > 1 and abs(d2) > 1:
+            return 0
+        elif abs(d1) > 1:
+            if d1 > 1:
+                return -1
+            else:
+                return 0.5
+        elif abs(d2) > 1:
+            if d2 > 1:
+                return 1
+            else:
+                return -0.5
+        else:
+            return 0

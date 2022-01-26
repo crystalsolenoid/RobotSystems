@@ -51,9 +51,9 @@ class Picarx(object):
         self.right_rear_dir_pin = Pin("D5")
 
 
-        self.S0 = ADC('A0')
-        self.S1 = ADC('A1')
-        self.S2 = ADC('A2')
+#        self.S0 = ADC('A0')
+#        self.S1 = ADC('A1')
+#        self.S2 = ADC('A2')
 
         self.motor_direction_pins = [self.left_rear_dir_pin, self.right_rear_dir_pin]
         self.motor_speed_pins = [self.left_rear_pwm_pin, self.right_rear_pwm_pin]
@@ -157,12 +157,12 @@ class Picarx(object):
         # print("self.cam_cal_value_2:",self.cam_cal_value_2)
         print((value + self.cam_cal_value_2))
 
-    def get_adc_value(self):
-        adc_value_list = []
-        adc_value_list.append(self.S0.read())
-        adc_value_list.append(self.S1.read())
-        adc_value_list.append(self.S2.read())
-        return adc_value_list
+#    def get_adc_value(self):
+#        adc_value_list = []
+#        adc_value_list.append(self.S0.read())
+#        adc_value_list.append(self.S1.read())
+#        adc_value_list.append(self.S2.read())
+#        return adc_value_list
 
     @log_on_start(logging.DEBUG, "Setting motor power to {speed}...")
     def set_power(self,speed):
@@ -214,31 +214,31 @@ class Picarx(object):
         self.set_motor_speed(1, 0)
         self.set_motor_speed(2, 0)
 
-    @log_on_end(logging.DEBUG, "Distance measured: {result!r}cm")
-    def Get_distance(self):
-        timeout=0.01
-        trig = Pin('D8')
-        echo = Pin('D9')
-
-        trig.low()
-        time.sleep(0.01)
-        trig.high()
-        time.sleep(0.000015)
-        trig.low()
-        pulse_end = 0
-        pulse_start = 0
-        timeout_start = time.time()
-        while echo.value()==0:
-            pulse_start = time.time()
-            if pulse_start - timeout_start > timeout:
-                return -1
-        while echo.value()==1:
-            pulse_end = time.time()
-            if pulse_end - timeout_start > timeout:
-                return -2
-        during = pulse_end - pulse_start
-        cm = round(during * 340 / 2 * 100, 2)
-        return cm
+#    @log_on_end(logging.DEBUG, "Distance measured: {result!r}cm")
+#    def Get_distance(self):
+#        timeout=0.01
+#        trig = Pin('D8')
+#        echo = Pin('D9')
+#
+#        trig.low()
+#        time.sleep(0.01)
+#        trig.high()
+#        time.sleep(0.000015)
+#        trig.low()
+#        pulse_end = 0
+#        pulse_start = 0
+#        timeout_start = time.time()
+#        while echo.value()==0:
+#            pulse_start = time.time()
+#            if pulse_start - timeout_start > timeout:
+#                return -1
+#        while echo.value()==1:
+#            pulse_end = time.time()
+#            if pulse_end - timeout_start > timeout:
+#                return -2
+#        during = pulse_end - pulse_start
+#        cm = round(during * 340 / 2 * 100, 2)
+#        return cm
 
     def drive_distance(self, dist, angle, speed=50):
         # distances calibrated for default speed of 50
