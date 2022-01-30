@@ -22,7 +22,7 @@ logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%HL%ML%S
 logging.getLogger().setLevel(logging.DEBUG)
 
 class Interpretx():
-    def __init__(self, sensitivity=1, polarity=1):
+    def __init__(self, sensitivity=150, polarity=1):
         self.sens = sensitivity
         self.pol = polarity
     
@@ -31,20 +31,21 @@ class Interpretx():
         # find gradient
         # and if polarity is negative, invert image
         # scale by sensitivity
-        d1 = (s1 - s0) * self.pol * self.sens
-        d2 = (s2 - s1) * self.pol * self.sens
+        d1 = (s1 - s0) * self.pol / self.sens
+        d2 = (s2 - s1) * self.pol / self.sens
         # determine if there is an edge
+        print(d1, d2)
         if abs(d1) > 1 and abs(d2) > 1:
             return 0
         elif abs(d1) > 1:
-            if d1 > 1:
-                return -1
-            else:
+            if d1 > 1: # +, 0
                 return 0.5
+            else: # -, 0
+                return -1
         elif abs(d2) > 1:
-            if d2 > 1:
+            if d2 > 1: # 0, +
                 return 1
-            else:
+            else: # 0, -
                 return -0.5
         else:
             return 0
