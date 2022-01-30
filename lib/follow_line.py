@@ -10,6 +10,7 @@ def update_steering(px, ix, sx, cx):
     position = ix.process(data)
     print(data, position)
     angle = cx.control(px, position)
+    return angle
 
 if __name__ == "__main__":
     px = picarx.Picarx()
@@ -17,5 +18,5 @@ if __name__ == "__main__":
     sx = sensorx.Sensorx()
     cx = controlx.Controlx()
     while True:
-        update_steering(px, ix, sx, cx)
-        time.sleep(0.5)
+        angle = update_steering(px, ix, sx, cx)
+        px.drive_distance(0.3, angle, 25)
