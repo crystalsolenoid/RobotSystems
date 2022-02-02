@@ -25,6 +25,9 @@ class Interpretx():
     def __init__(self, sensitivity=150, polarity=1):
         self.sens = sensitivity
         self.pol = polarity
+
+    def __call__(self, sensors):
+        return self.process(sensors)
     
     def process(self, sensors):
         s0, s1, s2 = sensors
@@ -49,3 +52,15 @@ class Interpretx():
                 return -0.5
         else:
             return 0
+
+class EmergencyStop():
+    def __init__(self, cutoff=50):
+        self.cutoff = cutoff
+
+    def __call__(self, ultrasonic):
+        return self.process(ultrasonic)
+
+    def process(self, ultrasonic):
+        # return True if there's something too close
+        return ultrasonic < self.cutoff
+

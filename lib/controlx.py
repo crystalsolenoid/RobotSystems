@@ -22,10 +22,29 @@ logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%HL%ML%S
 logging.getLogger().setLevel(logging.DEBUG)
 
 class Controlx():
-    def __init__(self, scaling=10):
+    def __init__(self, px, scaling=10):
+        self.px = px
         self.scale = scaling
+
+    def __call__(self, position):
+        self.control(position)
     
-    def control(self, px, position):
+    @log_on_start(logging.DEBUG, "Steering...")
+    def control(self, position):
         steer = position * self.scale
-        px.set_dir_servo_angle(steer)
+        self.px.set_dir_servo_angle(steer)
         return steer
+
+class Forward():
+    def __init__(self, px, speed=30):
+        self.px = px
+        self.speed = speed
+
+    def __call__(self, too_close):
+        return self.control(too_close)
+
+    def control(self, too_close):
+        if too_close:
+            self.px.stop()
+        else:
+            self.px.forward(self.speed)

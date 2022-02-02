@@ -1,6 +1,7 @@
 import logging
 from logdecorator import log_on_start, log_on_end, log_on_error
 import atexit
+import time
 
 import platform
 if platform.machine() == 'armv7l':
@@ -27,12 +28,23 @@ class Sensorx():
         self.S1 = ADC('A1')
         self.S2 = ADC('A2')
 
+    def __call__(self):
+        return self.get_adc_value()
+
+    @log_on_end(logging.DEBUG, "Ground measured: {result!r}cm")
     def get_adc_value(self):
         adc_value_list = []
         adc_value_list.append(self.S0.read())
         adc_value_list.append(self.S1.read())
         adc_value_list.append(self.S2.read())
         return adc_value_list
+
+class UltraSonic():
+    def __init__(self):
+        pass
+
+    def __call__(self):
+        return self.Get_distance()
 
     @log_on_end(logging.DEBUG, "Distance measured: {result!r}cm")
     def Get_distance(self):
